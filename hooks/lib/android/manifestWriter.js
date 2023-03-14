@@ -57,10 +57,17 @@ function writePreferences(cordovaContext, pluginPreferences) {
  */
 function removeOldOptions(manifestData) {
   var cleanManifest = manifestData;
-  var activities = manifestData['manifest']['application'][0]['activity'];
+  var mainActivityIndex = manifestData['manifest']['application'][0]['activity']
+    .findIndex(element => {
+      element['$']['android:name'] === 'mainActivity';
+    });
 
-  activities.forEach(removeIntentFiltersFromActivity);
-  cleanManifest['manifest']['application'][0]['activity'] = activities;
+  if (mainActivityIndex < 0) return cleanManifest;
+
+  var mainActivity = manifestData['manifest']['application'][0]['activity'][mainActivityIndex];
+
+  removeIntentFiltersFromActivity(mainActivity);
+  cleanManifest['manifest']['application'][0]['activity'][mainActivityIndex] = mainActivity;
 
   return cleanManifest;
 }
